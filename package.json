@@ -1,0 +1,14 @@
+{
+  "name": "stealth-roguelike",
+  "version": "1.0.0",
+  "description": "A minimal, turn-based, stealth roguelike with colored squares. Node.js + Express backend, browser frontend.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "uuid": "^9.0.0"
+  }
+}
+
