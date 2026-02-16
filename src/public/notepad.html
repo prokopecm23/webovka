@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notepad</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h2>Notepad</h2>
+  <form id="logoutForm" method="GET" action="/logout">
+    <button type="submit">Logout</button>
+  </form>
+  <textarea id="notes" rows="20" cols="60" placeholder="Write your notes here..."></textarea><br>
+  <button id="saveBtn">Save</button>
+  <div id="status"></div>
+  <script>
+    fetch('/notepad/data').then(r=>r.json()).then(d=>{
+      document.getElementById('notes').value = (d.notes||[]).join('\n');
+    });
+    document.getElementById('saveBtn').onclick = function() {
+      fetch('/notepad/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: document.getElementById('notes').value.split('\n') })
+      }).then(r=>r.json()).then(d=>{
+        document.getElementById('status').innerText = d.success ? 'Saved!' : 'Error saving.';
+      });
+    };
+  </script>
+</body>
+</html>
