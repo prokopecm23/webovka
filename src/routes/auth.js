@@ -1,15 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const fs = require('fs');
-const dbPath = path.join(__dirname, '../db.json');
 
-function getDb() {
-  return JSON.parse(fs.readFileSync(dbPath));
-}
-function saveDb(db) {
-  fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
-}
 
 function ensureLoggedIn(req, res, next) {
   if (req.session.user) return next();
@@ -24,10 +16,10 @@ router.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/register.html'));
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const db = getDb();
-  const user = db.users.find(u => u.username === username && u.password === password);
+  const User = req.app.get('UserModel');
+  const user = await User.findOne({ username, password });
   if (user) {
     req.session.user = { username };
     res.redirect('/notepad');
@@ -36,14 +28,14 @@ router.post('/login', (req, res) => {
   }
 });
 
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { username, password } = req.body;
-  const db = getDb();
-  if (db.users.find(u => u.username === username)) {
+  const User = req.app.get('UserModel');
+  const exists = await User.findOne({ username });
+  if (exists) {
     return res.redirect('/register?error=1');
   }
-  db.users.push({ username, password, notes: [] });
-  saveDb(db);
+  await User.create({ username, password, notes: [] });
   req.session.user = { username };
   res.redirect('/notepad');
 });
